@@ -55,14 +55,20 @@ class Chat {
      * @param {Object} data Object of message
      */
     addMsg(type, data) {
+        const wrapperType = type == 'me' ? 'accent' : 'default'
+
         const messageWrapper = document.createElement('div')
-              messageWrapper.classList.add('chat-msg__wrapper')
+              messageWrapper.classList.add('chat-msg__wrapper', `chat-msg__wrapper--${wrapperType}`)
+
+        const avatar = document.createElement('div')
+              avatar.classList.add('chat-msg__icon')
+              avatar.style.backgroundImage = `url(${data.user.img})` 
 
         const message = document.createElement('div')
-              message.classList.add('chat-msg', `chat-msg--${type}`)
+              message.classList.add('chat-msg')
               message.innerText = data.data.text
 
-        messageWrapper.append(message)
+        messageWrapper.append(avatar, message)
         
         this.box.append(messageWrapper)
     }
@@ -124,7 +130,12 @@ class Chat {
         if (data.user.name == this.user.name) {
             return
         }
-
+        
+        this.element
+        .querySelector('.chat-msg__wrapper--typing .chat-msg__icon')
+        .style
+        .backgroundImage = `url(${data.user.img})`
+        
         this.element.classList.toggle('chat--typing', data.data.status)
     }
 
