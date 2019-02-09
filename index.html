@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+    <div class="mdl-grid mdl-grid--no-spacing full-page">
+        <div class="mdl-cell  mdl-cell--8-col mdl-cell--5-col-tablet">
+            <div id="map"></div>
+        </div>
+        <div class="mdl-cell mdl-cell--4-col mdl-cell--3-col-tablet">
+            <header class="app-header mdl-shadow--2dp">
+                <div style="display: flex">
+                        <div class="avatar"></div>
+                        <div class="app-header__title">
+                            Test test
+                        </div>
+                </div>
+                
+                <div class="app-header__btn">
+                    <label class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">edit</i>
+                    </label>
+                </div>
+            </header>
+
+            <div class="chat">
+                <div class="chat-box chat__msgs-box">
+                    <div class="chat-msg__wrapper chat-msg__wrapper--accent">
+                        <div class="chat-msg__icon"></div>
+        
+                        <div class="chat-msg">Aasd</div>
+                    </div>
+            
+                    <div class="chat-msg__wrapper chat-msg__wrapper--default">
+                        <div class="chat-msg__icon"></div>
+        
+                        <div class="chat-msg">Aasd</div>
+                    </div>
+            
+                    <div class="chat-msg__wrapper chat-msg__wrapper--default chat-msg__wrapper--typing">
+                        <div class="chat-msg__icon"></div>
+        
+                        <div class="chat-msg chat-msg--typing">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+        
+                <div>
+                    <textarea class="chat-input"></textarea>
+                    <div class="chat-send">Send</div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+                <input type="file" name="user-image" id="user-image">
+            </div>
+    </div>
+
+    <script type="module">
+        import SocketClient from './src/SocketClient.js'
+        import Chat from './src/Chat.js'
+        import Map from './src/Maps.js'
+        import User from './src/User.js'
+        import ImageLoader from './src/ImageLoader.js'
+        import conf from './config.js'
+
+        console.log(conf)
+
+        const socketClient = new SocketClient(conf.server)
+        const chat = new Chat(socketClient.channel('chat'), { selector: '.chat' })
+        const map = new Map(socketClient.channel('map'), { selector: '#map', key: '' })
+        
+        const user = new User()
+        chat.setUser(user)
+        map.setUser(user)
+
+        const imageLoader = new ImageLoader('#user-image')
+        
+        imageLoader.on('load', (data) => {
+            user.setImg(data)
+            map.updateMarkerIcon(data)
+        })
+
+        /* expose module method to global */
+        window.initMap = () => { map.initMap() }
+
+        const tag = document.createElement('script')
+        tag.src = `https://maps.googleapis.com/maps/api/js?key=${conf.key}&callback=initMap`
+        tag.defer = true
+        var firstScriptTag = document.getElementsByTagName('script')[0]
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+    </script>
+
+    <!-- <script defer src="https://maps.googleapis.com/maps/api/js?key=key&callback=initMap"></script> -->
+
+
+</body>
+</html>

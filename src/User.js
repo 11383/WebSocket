@@ -2,10 +2,15 @@ class User {
     constructor() {
         this.name = this.generateName()
         this.img = null
+        this.id = this.genID()
     }
 
     generateName() {
-        return `anonymous_${Math.floor(100000 + Math.random() * 900000)}`
+        return `anonymous_${this.genID()}`
+    }
+
+    genID() {
+        return Math.floor(100000 + Math.random() * 900000)
     }
 
     setName(name) {
@@ -18,6 +23,7 @@ class User {
 
     getData() {
         return {
+            id: this.id,
             name: this.name,
             img: this.img
         }
