@@ -18,28 +18,20 @@ class Maps {
      * @param {Object} data payload
      */
     onMsgReceived(data) {
-        switch(data.data.type) {
-            case 'typing':
-                this.setTyping(data)
-            break;
-
-            case 'message':
-                this.addMsg( data.user.name == this.user.name ? 'me' : 'other', data)
-            break;
+        if (data.user.id !== this.user.id) {
+            this.updateMarker(data.data, data.user.id, data.user.img)
         }
+        console.log('maps', data)
     }
 
     /**
      * Send message to server
-     * @param {Object|Array|String} data data to send
      */
-    send(data) {
+    send() {
         this.socketClient.send({
             user: this.user,
-            data
+            data: this.getUserMarkerPos()
         })
-
-        this.typing = false
     }
 
     /**
@@ -88,6 +80,15 @@ class Maps {
         return this.markers[this.user.id]
     }
 
+    getUserMarkerPos() {
+        const marker = this.getUserMarker()
+
+        return {
+            lat: marker.getPosition().lat(),
+            lng: marker.getPosition().lng()
+        }
+    }
+
     updateMarker(pos, id = Date.now(), icon) {
 
         if (this.markers[id]) {
@@ -105,12 +106,7 @@ class Maps {
     }
 
     onKeyDown(e) {
-        const marker = this.getUserMarker()
-
-        let position = {
-            lat: marker.getPosition().lat(),
-            lng: marker.getPosition().lng()
-        }
+        let position = this.getUserMarkerPos()
 
         switch(e.keyCode) {
             // left
@@ -134,6 +130,7 @@ class Maps {
         }
 
         this.updateMarker(position, this.user.id)
+        this.send()
     }
 }
 

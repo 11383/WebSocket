@@ -62,15 +62,20 @@ class Chat {
 
         const avatar = document.createElement('div')
               avatar.classList.add('chat-msg__icon')
-              avatar.style.backgroundImage = `url(${data.user.img})` 
+
+        if (data.user.img !== null) {
+            avatar.style.backgroundImage = `url(${data.user.img})`
+        }
 
         const message = document.createElement('div')
               message.classList.add('chat-msg')
               message.innerText = data.data.text
 
+        messageWrapper.title = data.user.name
         messageWrapper.append(avatar, message)
         
         this.box.append(messageWrapper)
+        this.scrollBox()
     }
 
     /**
@@ -150,6 +155,7 @@ class Chat {
 
         clearTimeout(this.typing)
         this.typing = setTimeout( _ => { this.stopTyping() }, 1000)
+        this.scrollBox()
     }
     
     /**
@@ -161,6 +167,10 @@ class Chat {
         this.typing = null
 
         this.send({ type: 'typing', status: false })
+    }
+
+    scrollBox() {
+        this.box.parentElement.scrollTop = this.box.scrollHeight;
     }
 }
 

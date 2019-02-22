@@ -18,57 +18,60 @@
         <div class="mdl-cell  mdl-cell--8-col mdl-cell--5-col-tablet">
             <div id="map"></div>
         </div>
-        <div class="mdl-cell mdl-cell--4-col mdl-cell--3-col-tablet">
+        <div class="mdl-cell mdl-cell--4-col mdl-cell--3-col-tablet app-column">
             <header class="app-header mdl-shadow--2dp">
                 <div style="display: flex">
-                        <div class="avatar"></div>
-                        <div class="app-header__title">
-                            Test test
+                    <div class="avatar img-fileUploader">
+                        <label for="avatar"></label>
+                        <input type="file" id="avatar">
+                    </div>
+                    <div class="app-header__title">
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <input class="mdl-textfield__input" type="text" id="user">
+                            <label class="mdl-textfield__label" for="user">/label>
                         </div>
-                </div>
-                
-                <div class="app-header__btn">
-                    <label class="mdl-button mdl-js-button mdl-button--icon">
-                        <i class="material-icons">edit</i>
-                    </label>
+                    </div>
                 </div>
             </header>
 
             <div class="chat">
-                <div class="chat-box chat__msgs-box">
-                    <div class="chat-msg__wrapper chat-msg__wrapper--accent">
-                        <div class="chat-msg__icon"></div>
-        
-                        <div class="chat-msg">Aasd</div>
-                    </div>
+                <div class="chat-box-wrapper" style="overflow: scroll">
+                    <div class="chat-box chat__msgs-box">
+                        <div class="chat-msg__wrapper chat-msg__wrapper--accent">
+                            <div class="chat-msg__icon"></div>
             
-                    <div class="chat-msg__wrapper chat-msg__wrapper--default">
-                        <div class="chat-msg__icon"></div>
-        
-                        <div class="chat-msg">Aasd</div>
-                    </div>
+                            <div class="chat-msg">Aasd</div>
+                        </div>
+                
+                        <div class="chat-msg__wrapper chat-msg__wrapper--default">
+                            <div class="chat-msg__icon"></div>
             
-                    <div class="chat-msg__wrapper chat-msg__wrapper--default chat-msg__wrapper--typing">
-                        <div class="chat-msg__icon"></div>
-        
-                        <div class="chat-msg chat-msg--typing">
-                            <span></span>
-                            <span></span>
-                            <span></span>
+                            <div class="chat-msg">Aasd</div>
+                        </div>
+                
+                        <div class="chat-msg__wrapper chat-msg__wrapper--default chat-msg__wrapper--typing">
+                            <div class="chat-msg__icon"></div>
+            
+                            <div class="chat-msg chat-msg--typing">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
         
-                <div>
-                    <textarea class="chat-input"></textarea>
-                    <div class="chat-send">Send</div>
+                <div class="mdl-shadow--2dp chat-form">
+                    <div class="mdl-textfield mdl-js-textfield chat-form__input">
+                        <textarea class="mdl-textfield__input chat-input" type="text" rows= "2"></textarea>
+                    </div>
+                    <!-- Colored icon button -->
+                    <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored chat-send">
+                        <i class="material-icons">send</i>
+                    </button>
                 </div>
             </div>
         </div>
-
-        <div>
-                <input type="file" name="user-image" id="user-image">
-            </div>
     </div>
 
     <script type="module">
@@ -79,8 +82,6 @@
         import ImageLoader from './src/ImageLoader.js'
         import conf from './config.js'
 
-        console.log(conf)
-
         const socketClient = new SocketClient(conf.server)
         const chat = new Chat(socketClient.channel('chat'), { selector: '.chat' })
         const map = new Map(socketClient.channel('map'), { selector: '#map', key: '' })
@@ -89,11 +90,15 @@
         chat.setUser(user)
         map.setUser(user)
 
-        const imageLoader = new ImageLoader('#user-image')
-        
+        const userInput = document.querySelector("#user")
+        userInput.value = user.name
+        userInput.addEventListener('change', _ => user.setName(userInput.value))
+
+        const imageLoader = new ImageLoader('.img-fileUploader input')
         imageLoader.on('load', (data) => {
             user.setImg(data)
             map.updateMarkerIcon(data)
+            document.querySelector('.img-fileUploader').style.backgroundImage = `url(${data})`
         })
 
         /* expose module method to global */
@@ -107,7 +112,5 @@
     </script>
 
     <!-- <script defer src="https://maps.googleapis.com/maps/api/js?key=key&callback=initMap"></script> -->
-
-
 </body>
 </html>
