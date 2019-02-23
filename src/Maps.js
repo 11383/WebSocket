@@ -14,6 +14,27 @@ class Maps {
     }
 
     /**
+     * Get user position from browser
+     * @returns {GeolocationCords} pos 
+     * return position from geolocation api if allowed, other returns -34.397, 150.644 
+     */
+    async getCurrentUserPosition() {
+        return new Promise((resolve, reject) => {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const {latitude: lat, longitude: lng} = position.coords
+                    resolve({lat, lng})
+                },
+                error => {
+                    console.warn(error)
+
+                    resolve({lat: -34.397, lng: 150.644})
+                })
+            }
+        })
+    }
+
+    /**
      * When chat get msg from server
      * @param {Object} data payload
      */
@@ -21,7 +42,6 @@ class Maps {
         if (data.user.id !== this.user.id) {
             this.updateMarker(data.data, data.user.id, data.user.img)
         }
-        console.log('maps', data)
     }
 
     /**
@@ -49,7 +69,7 @@ class Maps {
     /**
      * Callback for google maps api success loaded
      */
-    initMap() {
+    async initMap() {
         this.map = 
         new google.maps.Map(document.querySelector(this.selector), {
             center: {lat: -34.397, lng: 150.644},
@@ -58,7 +78,8 @@ class Maps {
             disableDefaultUI: true
         });
 
-        this.updateMarker({lat: -34, lng: 150}, this.user.id)
+        const position = await this.getCurrentUserPosition()
+        this.updateMarker(position, this.user.id)
     }
 
     /**
@@ -76,10 +97,19 @@ class Maps {
         });
     }
 
+    /**
+     * getUserMarker
+     * @returns {GoogleMapMarker} actual user marker
+     */
     getUserMarker() {
         return this.markers[this.user.id]
     }
 
+    /**
+     * getUserMarkerPos
+     * @returns {GeolocationCords} pos
+     * Position of current user marker
+     */
     getUserMarkerPos() {
         const marker = this.getUserMarker()
 
@@ -89,6 +119,12 @@ class Maps {
         }
     }
 
+    /**
+     * Update if exists or create new marker
+     * @param {GeolocationCords} pos position of marker
+     * @param {String} id unique id of marker. If exists marker with given idm it will be updated 
+     * @param {Base64String} icon base64 icon
+     */
     updateMarker(pos, id = Date.now(), icon) {
 
         if (this.markers[id]) {
@@ -96,6 +132,13 @@ class Maps {
 
         } else {
             this.markers[id] = this.createMarker(pos, icon)
+        }
+
+        // if update this user marker
+        if (id == this.user.id) {
+            const center = new google.maps.LatLng(...Object.values(pos))
+
+            this.map.panTo(center)
         }
     }
 

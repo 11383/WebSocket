@@ -57,6 +57,11 @@
     position: relative;
 }
 
+.chat-box-wrapper {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
 .chat-input {
     padding: 8px 4px;
 }

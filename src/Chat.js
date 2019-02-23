@@ -97,8 +97,8 @@ class Chat {
         this.input = this.element.querySelector(selector)
         
         this.input.addEventListener('keyup', e => {
-            // enter key
-            if (e.keyCode == 13) {
+            // enter key (without shift - for multiline support)
+            if (e.keyCode == 13 && !e.shiftKey) {
                 this.stopTyping()
                 this.sendFromInput()
             } 
@@ -121,10 +121,13 @@ class Chat {
 
     /**
      * Get data from input, and send to server
+     * Send non-empty messages
      */
     sendFromInput() {
-        this.send({ type: 'message', text: this.input.value })
-        this.input.value = ''
+        if (this.input.value.trim().length > 0) {
+            this.send({ type: 'message', text: this.input.value })
+            this.input.value = ''
+        }
     }
 
     /**
@@ -169,6 +172,9 @@ class Chat {
         this.send({ type: 'typing', status: false })
     }
 
+    /**
+     * Scroll message box, to the bottom (to fresh message)
+     */
     scrollBox() {
         this.box.parentElement.scrollTop = this.box.scrollHeight;
     }
