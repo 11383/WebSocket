@@ -62,8 +62,15 @@ class Maps {
         this.user = user
     }
 
+    /**
+     * Update icon of current user marker
+     * @param {Base64String} icon base64 icon
+     */
     updateMarkerIcon(icon) {
         this.getUserMarker().setIcon(icon)
+
+        // update server
+        this.send()
     }
 
     /**
@@ -79,7 +86,10 @@ class Maps {
         });
 
         const position = await this.getCurrentUserPosition()
-        this.updateMarker(position, this.user.id)
+        this.updateMarker(position, this.user.id, this.user.img)
+
+        // inform server about new user
+        this.send()
     }
 
     /**
@@ -129,6 +139,7 @@ class Maps {
 
         if (this.markers[id]) {
             this.markers[id].setPosition(pos)
+            this.markers[id].setIcon(icon)
 
         } else {
             this.markers[id] = this.createMarker(pos, icon)
@@ -172,7 +183,7 @@ class Maps {
             break;
         }
 
-        this.updateMarker(position, this.user.id)
+        this.updateMarker(position, this.user.id, this.user.img)
         this.send()
     }
 }
